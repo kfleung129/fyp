@@ -1,7 +1,33 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+'use client';
+import React, { useState } from 'react';
+import Image from 'next/image';
+import styles from './page.module.css';
+import * as tf from '@tensorflow/tfjs';
 
 export default function Home() {
+  const [prediction, setPrediction] = useState("");
+  
+  async function loadModel() {
+    // Set prediction status is "Loading..."
+    setPrediction("Loading ...");
+    const model = await tf.loadLayersModel("http://localhost:3000/model/model.json")
+    // console.log("Model loaded.")
+    let arr = [];
+    // Temporary to make a test dataset input of 30 x 60 matrix of data
+    for(let i = 0; i < 30; i++) {
+      let tmp = [];
+      for(let k = 0; k < 60; k++) {
+        tmp.push(60);
+      }
+      arr.push(tmp);
+    }
+    let b = tf.tensor(arr);
+    b = tf.reshape(b, [30, 60, 1]);
+    let result = model.predict(b);
+    // Set prediction result
+    setPrediction(result.dataSync()[0])
+  }
+
   return (
     <main className={styles.main}>
       <div className={styles.description}>
@@ -28,67 +54,20 @@ export default function Home() {
         </div>
       </div>
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
       <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
 
         <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
           className={styles.card}
           target="_blank"
           rel="noopener noreferrer"
         >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
+          <button className={styles.customButton1} onClick={loadModel}>
+            Run Model
+          </button>
+          <p>Load LSTM model to get prediction</p>
+          <p id="prediction">Prediction: {prediction}</p>
         </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+        
       </div>
     </main>
   )
