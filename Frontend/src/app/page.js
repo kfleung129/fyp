@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import styles from './page.module.css';
 import * as tf from '@tensorflow/tfjs';
+import yahooFinance from 'yahoo-finance2';
 
 export default function Home() {
   const [prediction, setPrediction] = useState("");
@@ -10,7 +11,7 @@ export default function Home() {
   async function loadModel() {
     // Set prediction status is "Loading..."
     setPrediction("Loading ...");
-    const model = await tf.loadLayersModel("http://localhost:3000/model/model.json")
+    const model = await tf.loadLayersModel("http://localhost:3000/model/AAPL/model.json")
     // console.log("Model loaded.")
     let arr = [];
     // Temporary to make a test dataset input of 30 x 60 matrix of data
@@ -26,6 +27,19 @@ export default function Home() {
     let result = model.predict(b);
     // Set prediction result
     setPrediction(result.dataSync()[0])
+    try {
+      const test = await fetch("https://www.google.com", {
+        "headers": {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        },
+        "mode": 'no-cors',
+      });
+      console.log(test)
+      const a = await test.text()
+      console.log(a)
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   return (
