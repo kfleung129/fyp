@@ -9,15 +9,27 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.5.1",
+    "@fortawesome/free-brands-svg-icons": "^6.5.1",
+    "@fortawesome/free-regular-svg-icons": "^6.5.1",
+    "@fortawesome/free-solid-svg-icons": "^6.5.1",
+    "@fortawesome/react-fontawesome": "^0.2.0",
     "@tensorflow/tfjs": "^4.12.0",
+    "google-finance": "^0.1.12",
+    "net": "^1.0.2",
     "next": "14.0.1",
     "react": "^18",
     "react-dom": "^18",
     "yahoo-finance": "^0.3.8",
-    "yahoo-finance2": "^2.9.0"
+    "yahoo-finance2": "^2.9.0",
+    "yahoo-stock-prices": "^1.1.0"
   },
   "devDependencies": {
     "eslint": "^8",
     "eslint-config-next": "14.0.1"
+  },
+  "browser": {
+    "fs": false,
+    "tls": false
   }
 }

@@ -1,0 +1,61 @@
+.menu {
+  display: flex;
+  flex-direction: column;
+  background-color: #171717;
+  height: 100vh;
+  gap: 2em;
+  align-items: flex-start;
+}
+
+.menu > header {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  margin-top: 1em;
+  margin-left: .6em;
+}
+
+.logo {
+  animation: rotating 10s linear infinite;
+  -webkit-animation: rotating 10s linear infinite;
+}
+
+.menuitem {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 2em;
+  overflow: hidden;
+  padding: 1em 1.5em;
+}
+
+.menuitem:hover {
+  background-color: rgb(241, 241, 241);
+  color: black;
+}
+
+.hid {
+  width: 5em;
+  transition: .4s ease-in-out;
+  overflow: hidden;
+}
+
+.opened {
+  width: 16em;
+  transition: .4s ease-in-out;
+  overflow: hidden;
+}
+
+.opened > ul {
+  width: 100%;
+}
+
+@keyframes rotating {
+  from{
+      -webkit-transform: rotate(0deg);
+  }
+  to{
+      -webkit-transform: rotate(360deg);
+  }
+}

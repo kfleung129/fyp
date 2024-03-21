@@ -1,0 +1,8 @@
+
+    -----MSFT Testing Metrics-----
+    Mean Absolute Error (MAE): 5.4354909261067705
+    Root Mean Square Error (RMSE): 6.589979849958217
+    Mean Absolute Percentage Error (MAPE): 1.3580730663945737
+    R-squared (R²): 0.8340987835600716
+    Directional Accuracy: 54.23728813559322
+    
