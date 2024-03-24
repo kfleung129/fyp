@@ -1,0 +1,14 @@
+.submitButton {
+  width: 4.5em;
+  height: 2.2em;
+  font-size: 1.2em;
+  border: 1px solid rgb(167, 167, 167);
+  border-radius: 14px;
+  background-color: #242732;
+  text-align: center;
+  transition: 0.2s;
+}
+
+.submitButton:hover {
+  filter: brightness(75%);
+}
