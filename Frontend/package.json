@@ -21,7 +21,9 @@
     "next": "14.0.1",
     "node-html-parser": "^6.1.12",
     "react": "^18",
+    "react-datepicker": "^6.6.0",
     "react-dom": "^18",
+    "recharts": "^2.12.3",
     "yahoo-finance": "^0.3.8",
     "yahoo-finance2": "^2.9.0",
     "yahoo-stock-prices": "^1.1.0"

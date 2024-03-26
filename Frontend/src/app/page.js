@@ -1,11 +1,14 @@
 'use client';
 import React, { useState, useEffect, use } from 'react';
 import Head from 'next/head';
-// import styles from './page.module.css';
+import "react-datepicker/dist/react-datepicker.css";
+
 import * as tf from '@tensorflow/tfjs';
 import StockSelect from '@/components/StockSelect';
 import NavigationBar from '@/components/NavigationBar';
 import SubmitButton from '@/components/SubmitButton';
+import GraphDisplay from '@/components/GraphDisplay';
+import StockDatePicker from '@/components/StockDatePicker';
 import { pipeline, env } from "@xenova/transformers";
 
 // Skip local model check
@@ -17,14 +20,24 @@ export default function Home() {
   const [menuPressed, setMenuPressed] = useState(false);
   const [stockCode, setStockCode] = useState('AAPL');
   const [stockOptions, setStockOptions] = useState([]);
-  const [test, setPipeline] = useState(null);
+  const [startDate, setStartDate] = useState(new Date(new Date().setMonth(new Date().getMonth() - 1))); // By default start date is one month before the end date
+  const [endDate, setEndDate] = useState(new Date());
+  const [historicalDataList, setHistoricalDataList] = useState(null);
+  const [buttonLock, setButtonLock] = useState(false);
   
-
   let sentimentPipeline = null;
 
   useEffect(() => {
     loadStockOptions();
   }, []);
+
+  function lock() {
+    setButtonLock(true);
+  }
+
+  function unlock() {
+    setButtonLock(false);
+  }
 
   async function loadModel() {
     // Set prediction status is "Loading..."
@@ -59,13 +72,21 @@ export default function Home() {
     return newsList;
   }
 
-  async function getSentimentScore(stockCode) {
-    let newsList = await getStockNews(stockCode);
-    for(let i = 0; i < newsList.length; i++) {
-      let sentimentPipeline = await pipeline('sentiment-analysis', 'Xenova/distilroberta-finetuned-financial-news-sentiment-analysis');
-      let sentiment = await sentimentPipeline(newsList[i]);
-      console.log(sentiment)
-    }
+  async function getStockRecommendation(stockCode) {
+    lock();
+    // let newsList = await getStockNews(stockCode);
+    // for(let i = 0; i < newsList.length; i++) {
+    //   let sentimentPipeline = await pipeline('sentiment-analysis', 'Xenova/distilroberta-finetuned-financial-news-sentiment-analysis');
+    //   let sentiment = await sentimentPipeline(newsList[i]);
+    //   console.log(sentiment)
+    // }
+    let period1 = parseInt(startDate.getTime() / 1000);
+    let period2 = parseInt(endDate.getTime() / 1000);
+    let res = await fetch(`/api/historical?q=${stockCode}&period1=${period1}&period2=${period2}`);
+    let historicalData = await res.json();
+    setHistoricalDataList(historicalData);
+
+    unlock();
   }
 
   function onPressMenu () {
@@ -98,10 +119,13 @@ export default function Home() {
       <NavigationBar onPressMenu={onPressMenu} menuPressed={menuPressed} />
       <main>
         <div className="display">
-          <div style={{ background: '#2c2e3a', width: '100vw', height: '90vh' }}></div>
+          <GraphDisplay historicalDataList={historicalDataList} stockCode={stockCode} />
           <div className='input'>
             <StockSelect stockOptions={stockOptions} stockCode={stockCode} selectStock={selectStock} />
-            <SubmitButton text="Check" handler={getSentimentScore} stockCode={stockCode} />
+            <StockDatePicker date={startDate} setDate={setStartDate} maxDate={null} />
+            <span>-</span>
+            <StockDatePicker date={endDate} setDate={setEndDate} maxDate={new Date()} />
+            <SubmitButton text="Get Recommedation" handler={getStockRecommendation} stockCode={stockCode} lock={buttonLock}/>
           </div>
         </div>
       </main>
