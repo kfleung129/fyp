@@ -105,3 +105,20 @@ a {
     color-scheme: dark;
   }
 }
+
+main {
+  position: relative;
+  top: 0px;
+  left: 5em;
+  display: flex;
+  flex-direction: row; 
+}
+
+.input {
+  background-color: #1d2029;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 10vh;
+  gap: 1em;
+}

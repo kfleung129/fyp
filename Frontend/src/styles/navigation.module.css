@@ -1,10 +1,13 @@
 .menu {
   display: flex;
   flex-direction: column;
-  background-color: #171717;
+  background-color: #1d2029;
   height: 100vh;
   gap: 2em;
   align-items: flex-start;
+  position: absolute;
+  border-right: 2px solid #30333d;
+  z-index: 1000;
 }
 
 .menu > header {
@@ -31,7 +34,7 @@
 }
 
 .menuitem:hover {
-  background-color: rgb(241, 241, 241);
+  background-color: #b9c2cc;
   color: black;
 }
 

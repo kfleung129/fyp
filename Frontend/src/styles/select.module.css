@@ -1,0 +1,15 @@
+.stockSelect {
+  width: 10em;
+  height: 2.5em;
+  font-size: 1.2em;
+  border-radius: 14px;
+  padding: 0px 15px;
+  outline: none;
+  background-color: #242732;
+  transition: 0.2s;
+}
+
+.stockSelect:hover {
+  filter: brightness(125%);
+  box-shadow: 1px 2px;
+}
