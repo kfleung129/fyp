@@ -1,0 +1,6 @@
+{
+    "title": "AMD Ryzen 5 8600G makes Geekbench debut with mid-range RDNA3 iGPU",
+    "date": "1/2/2024",
+    "url": "https://www.notebookcheck.net/AMD-Ryzen-5-8600G-makes-Geekbench-debut-with-mid-range-RDNA3-iGPU.788644.0.html",
+    "text": "An earlier report stated that AMD planned to update its desktop APU lineup with the Phoenix-based Ryzen 8000 series. It was said to include four SKUs, namely the Ryzen 7 8700G, Ryzen 5 8600G, Ryzen 5 8500G and Ryzen 3 8300G. One of them has shown up on Geekbench today. The AMD Ryzen 5 8600G scores 24,842 in Geekbench 6.2 OpenCL benchmark. Similarly, its Vulkan score stands at 30,770 points. Its GPU is codenamed \"gfx1103\", which confirms that it uses a Phoenix2 die with 8 CUs. Its Radeon 760M GPU (clocked at 2.8 GHz) performs more or less on par with its laptop counterparts ($699 on Amazon), allowing gamers to play some modern-day titles at 1080p 60 FPS. Other AMD Ryzen 5 8600G specs include 6 Zen 4 CPU cores/12 threads and a boost clock of 4.996 GHz. It has shown up on Geekbench alongside an MSI pre-built PC with 32 GB of DDR5 6000 RAM. AMD could unveil the Ryzen 8000G series at CES in the coming days. Whether or not it will be available to the general public remains to be seen. Geekbench (1), (2) "
+}
