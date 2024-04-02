@@ -1,0 +1,6 @@
+{
+    "title": "AMD Ryzen 5 9600X, Ryzen 7 9700X \u201cZen 5\u201d Spotted with 192 Core Epyc Turin \nCPU",
+    "date": "3/28/2024",
+    "url": "https://www.hardwaretimes.com/amd-ryzen-5-9600x-ryzen-7-9700x/",
+    "text": "AMD\u2019s next-gen Zen 5 processors have been spotted on a shipping manifest. The leaked CPUs include a few Ryzen 9000 chips and several Epyc Turin \u201cClassic\u201d and Turin \u201cDense\u201d SKUs. Let\u2019s have a closer look at the consumer parts. Only two Granite Ridge processors are included in the manifest. These are likely the Ryzen 5 9600X (6 cores) and the Ryzen 7 9700X (8 cores) with a TDP of 105W and 170W, respectively.  On the server side, almost the entire Turin family, including the Zen 5 \u201cClassic\u201d and Zen 5c \u201cDense\u201d variants. Both lineups leverage the SP5 socket with a TDP of 500W (cTDP: 1400W). The top-end Turin CPUs feature 192 cores for the Zen 5c \u201cDense\u201d and 128 for the Zen 5 \u201cClassic\u201d variants. Internally, Turin is called Breithorn, so don\u2019t confuse it for a different lineup. Via: Momomo_Us. "
+}
