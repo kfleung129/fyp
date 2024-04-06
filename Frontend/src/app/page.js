@@ -10,6 +10,7 @@ import SubmitButton from '@/components/SubmitButton';
 import GraphDisplay from '@/components/GraphDisplay';
 import StockDatePicker from '@/components/StockDatePicker';
 import { pipeline, env } from "@xenova/transformers";
+import { getHistoricalPrices } from 'yahoo-stock-prices';
 
 // Skip local model check
 env.allowLocalModels = false;
@@ -20,15 +21,19 @@ export default function Home() {
   const [menuPressed, setMenuPressed] = useState(false);
   const [stockCode, setStockCode] = useState('AAPL');
   const [stockOptions, setStockOptions] = useState([]);
-  const [startDate, setStartDate] = useState(new Date(new Date().setMonth(new Date().getMonth() - 1))); // By default start date is one month before the end date
+  const [startDate, setStartDate] = useState(new Date('2024-01-02')); // By default start date is one month before the end date
   const [endDate, setEndDate] = useState(new Date());
-  const [historicalDataList, setHistoricalDataList] = useState(null);
+  const [displayContent, setDisplayContent] = useState(null);
   const [buttonLock, setButtonLock] = useState(false);
+  const [stockAvailableDates, setStockAvailableDates] = useState(null);
+  const [isLoading, setLoading] = useState(false);
   
   let sentimentPipeline = null;
 
   useEffect(() => {
     loadStockOptions();
+    getHistoricalData(stockCode);
+
   }, []);
 
   function lock() {
@@ -39,25 +44,57 @@ export default function Home() {
     setButtonLock(false);
   }
 
-  async function loadModel() {
+  function transform(priceList) {
+    let min = Math.min(...priceList);
+    let max = Math.max(...priceList);
+    let normalizedList = [];
+    for(let i = 0; i < priceList.length; i++) {
+      normalizedList.push((priceList[i] - min) / (max - min));
+    }
+    return normalizedList;
+  }
+
+  function inverse_transform(priceList, min, max) {
+    let inversedList = [];
+    for(let i = 0; i < priceList.length; i++) {
+      inversedList.push(priceList[i] * (max - min) + min);
+    }
+    return inversedList;
+  }
+
+  async function getLSTMPrediction(historicalData) {
     // Set prediction status is "Loading..."
     setPrediction("Loading ...");
-    const model = await tf.loadLayersModel("http://localhost:3000/model/AAPL/model.json")
-    // console.log("Model loaded.")
-    let arr = [];
-    // Temporary to make a test dataset input of 30 x 60 matrix of data
-    for(let i = 0; i < 30; i++) {
-      let tmp = [];
-      for(let k = 0; k < 60; k++) {
-        tmp.push(60);
-      }
-      arr.push(tmp);
+    const model = await tf.loadLayersModel(`http://localhost:3000/model/${stockCode}/model.json`)
+    const dayBefore = 60;
+    const startDateStr = `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${startDate.getDate()}`;
+    let openPriceList = historicalData.map(item => item.open);
+    let normalizedPriceList = transform(openPriceList);
+    let min = Math.min(...openPriceList);
+    let max = Math.max(...openPriceList);
+    const listLength = openPriceList.length;
+    const startItem = historicalData.find(item => item.date == startDateStr);
+    // non-trading day is selected
+    if (!startItem) {
+      console.error('Date unavailable')
+      return;
     }
-    let b = tf.tensor(arr);
-    b = tf.reshape(b, [30, 60, 1]);
-    let result = model.predict(b);
-    // Set prediction result
-    setPrediction(result.dataSync()[0])
+    const startIndex = historicalData.indexOf(startItem);
+    const dayDiff = listLength - startIndex
+    let X_test = []
+    let result = '';
+
+    for(let i = 0; i < dayDiff; i++) {
+      let row = normalizedPriceList.slice(startIndex - dayBefore + i, startIndex + i);
+      X_test.push(row);
+    }
+    X_test = tf.tensor(X_test);
+    X_test = tf.reshape(X_test, [dayDiff, dayBefore, 1]);
+    result = model.predict(X_test).dataSync();
+    result = [...result];
+
+    let predictedStockPrice = inverse_transform(result, min, max);
+    return predictedStockPrice;
   }
 
   // async function loadPipeline() {
@@ -74,28 +111,51 @@ export default function Home() {
 
   async function getStockRecommendation(stockCode) {
     lock();
+    setLoading(true);
     // let newsList = await getStockNews(stockCode);
     // for(let i = 0; i < newsList.length; i++) {
     //   let sentimentPipeline = await pipeline('sentiment-analysis', 'Xenova/distilroberta-finetuned-financial-news-sentiment-analysis');
     //   let sentiment = await sentimentPipeline(newsList[i]);
     //   console.log(sentiment)
     // }
-    let period1 = parseInt(startDate.getTime() / 1000);
+    let historicalData = await getHistoricalData(stockCode);
+    let predictedStockPrice = await getLSTMPrediction(historicalData);
+    const startDateStr = `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${startDate.getDate()}`;
+    const startItem = historicalData.find(item => item.date == startDateStr);
+    // non-trading day is selected
+    if (!startItem) {
+      console.error('Date unavailable')
+      return;
+    }
+    const startIndex = historicalData.indexOf(startItem);
+    for(let i = startIndex; i < historicalData.length; i++) {
+      historicalData[i]['predict'] = predictedStockPrice[i - startIndex];
+    }
+    setLoading(false);
+    setDisplayContent({ stockCode: stockCode, displayList: historicalData });
+    unlock();
+  }
+
+  async function getHistoricalData(stockCode) {
+    lock();
+    let period1 = parseInt((startDate.getTime() - 7948800000) / 1000);
     let period2 = parseInt(endDate.getTime() / 1000);
     let res = await fetch(`/api/historical?q=${stockCode}&period1=${period1}&period2=${period2}`);
     let historicalData = await res.json();
-    setHistoricalDataList(historicalData);
-
+    let availableDates = historicalData.map(item => item.date);
+    setStockAvailableDates(availableDates);
     unlock();
+    return historicalData;
   }
 
   function onPressMenu () {
     setMenuPressed(!menuPressed);
   }
 
-  function selectStock (stockCode) {
+  async function selectStock (stockCode) {
+    // Update different stock's available dates
+    await getHistoricalData(stockCode);
     setStockCode(stockCode);
-    console.log(stockCode);
   }
 
   async function loadStockOptions() {
@@ -110,7 +170,6 @@ export default function Home() {
   }
 
   return (
-    // className={styles.main}
     <div>
       <Head>
         <meta property="og:title" content="My page title" key="title" />
@@ -119,12 +178,12 @@ export default function Home() {
       <NavigationBar onPressMenu={onPressMenu} menuPressed={menuPressed} />
       <main>
         <div className="display">
-          <GraphDisplay historicalDataList={historicalDataList} stockCode={stockCode} />
+          <GraphDisplay displayContent={displayContent} stockCode={stockCode} isLoading={isLoading} />
           <div className='input'>
             <StockSelect stockOptions={stockOptions} stockCode={stockCode} selectStock={selectStock} />
-            <StockDatePicker date={startDate} setDate={setStartDate} maxDate={null} />
+            <StockDatePicker date={startDate} setDate={setStartDate} includeDates={stockAvailableDates} maxDate={null} />
             <span>-</span>
-            <StockDatePicker date={endDate} setDate={setEndDate} maxDate={new Date()} />
+            <StockDatePicker date={endDate} setDate={setEndDate} includeDates={stockAvailableDates} maxDate={new Date()} />
             <SubmitButton text="Get Recommedation" handler={getStockRecommendation} stockCode={stockCode} lock={buttonLock}/>
           </div>
         </div>
