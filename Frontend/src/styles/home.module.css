@@ -1,0 +1,65 @@
+.main {
+  width: 90vw;
+  height: 90vh;
+  margin-top: 1.5em;
+  margin-left: 2em;
+  background: #1d2029;
+  padding: 5em 4em;
+  border-radius: 24px;
+}
+
+.main h1 {
+  font-size: 60px;
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: rgb(155, 92, 228);
+  transition: .2s;
+}
+
+.main h1:hover {
+  filter: brightness(130%);
+  transition: .2s;
+}
+
+.main .intro {
+  margin-top: 1em;
+}
+
+.main .intro p {
+  font-size: 20px;
+  margin-top: 1.5em;
+  width: 50vw;
+  letter-spacing: .1em;
+}
+
+.main .intro p:hover {
+  color:rgb(166, 107, 233);
+  transition: .2s ease-in-out;
+}
+
+.main .content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tryButton {
+  color: #292929;
+  background-color: #2ECC71;
+  width: 12em;
+  height: 2.5em;
+  font-size: 24px;
+  font-weight: 600;
+  border: 0px;
+  border-radius: 5px;
+  margin-top: 6em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tryButton:hover {
+  cursor: pointer;
+  filter: brightness(125%);
+  color: #1f1f1f;
+  transition: .1s ease-in;
+}

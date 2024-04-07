@@ -14,7 +14,7 @@ export async function GET(request) {
 	const params = request.nextUrl.searchParams;
 	const q = params.get('q')
 	//const num = params.get('num')
-	const num = 3;
+	const num = params.get('num');
 	const hl = params.get('hl')
 	const start = params.get('start')
 	const from_date = params.get('from_date')

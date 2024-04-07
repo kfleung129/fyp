@@ -87,12 +87,8 @@ body {
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  background: #2c2e3a;
+  font-family: 'Comfortaa', sans-serif;
 }
 
 a {
@@ -121,4 +117,11 @@ main {
   align-items: center;
   height: 10vh;
   gap: 1em;
+}
+
+.content {
+  position: absolute;
+  background: #2c2e3a;
+  width: 100vw;
+  left: 5em;
 }

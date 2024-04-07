@@ -3,9 +3,12 @@ import { parse } from 'node-html-parser';
 
 export async function GET(request) {
     const params = request.nextUrl.searchParams;
-    let q = params.get('q')
+    let q = params.get('q');
+    let num = params.get('num') ? params.get('num') : 5;
+
     const searchParams = {
-        q: q
+        q: q,
+        num: num
     }
 
     const res = await fetch('http://localhost:3000/api/parse' + '?' + new URLSearchParams(searchParams), { cache: 'no-cache' });
