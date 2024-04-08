@@ -1,5 +1,12 @@
+.wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80%;
+}
+
 .loader {
-  width: 150px;
+  width: 20em;
   aspect-ratio: 1;
   border-radius: 50%;
   border: 8px solid #887be6;

@@ -6,12 +6,14 @@ import styles from '../styles/navigation.module.css';
 import { FaHome, FaStar } from "react-icons/fa";
 import { AiOutlineStock } from "react-icons/ai";
 import { GrContact } from "react-icons/gr";
+import { IoNewspaperSharp } from "react-icons/io5";
 
 const iconsMap = {
   'Home': FaHome,
   'Market': AiOutlineStock,
   'Perferences': FaStar,
   'Contact': GrContact,
+  'News': IoNewspaperSharp,
 }
 
 export default function MenuItem(props) {

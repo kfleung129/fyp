@@ -8,6 +8,7 @@ import SubmitButton from '@/components/SubmitButton';
 import GraphDisplay from '@/components/GraphDisplay';
 import StockDatePicker from '@/components/StockDatePicker';
 
+import { transform, inverse_transform } from '@/util/util';
 import styles from '@/styles/market.module.css';
 
 // Skip local model check
@@ -36,24 +37,6 @@ export default function MarketComponent(props) {
 
   function unlock() {
     setButtonLock(false);
-  }
-
-  function transform(priceList) {
-    let min = Math.min(...priceList);
-    let max = Math.max(...priceList);
-    let normalizedList = [];
-    for(let i = 0; i < priceList.length; i++) {
-      normalizedList.push((priceList[i] - min) / (max - min));
-    }
-    return normalizedList;
-  }
-
-  function inverse_transform(priceList, min, max) {
-    let inversedList = [];
-    for(let i = 0; i < priceList.length; i++) {
-      inversedList.push(priceList[i] * (max - min) + min);
-    }
-    return inversedList;
   }
   
   async function getStockRecommendation(stockCode) {

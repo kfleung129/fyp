@@ -1,12 +1,14 @@
 .menu {
   display: flex;
+  overflow: hidden !important;
+  position: fixed !important;
+  top: 0 !important;
+  height: 100% !important;
   flex-direction: column;
   background-color: #1d2029;
-  height: 100vh;
   gap: 2em;
   align-items: flex-start;
   position: absolute;
-  border-right: 2px solid #30333d;
   z-index: 1000;
   font-weight: 500;
 }

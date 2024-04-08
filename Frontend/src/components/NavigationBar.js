@@ -30,6 +30,7 @@ export default function NavigationBar(props) {
       <ul>
         <MenuItem name='Home' href='/' width={menuWidth} />
         <MenuItem name='Market' href='/market' width={menuWidth} />
+        <MenuItem name='News' href='/news' width={menuWidth} />
         <MenuItem name='Perferences' href='/perferences' width={menuWidth} />
         <MenuItem name='Contact' href='/contact' width={menuWidth} />
       </ul>

@@ -7,7 +7,6 @@ import styles from '@/styles/home.module.css';
 export default function Home() {
   return (
     <div className={styles.main}>
-      
       <div className={styles.content}>
         <div className={styles.intro} >
           <h1>StockRem</h1>
