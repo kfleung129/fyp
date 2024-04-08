@@ -23,7 +23,7 @@ export default function MenuItem(props) {
   const selected = pathname === href;
 
   return (
-    <Link href={href} onClick={() => console.log(href)}>
+    <Link href={href}>
       <li className={`${styles.menuitem} ${selected ? styles.selected : null}`}>
           <div className={styles.logoWrapper}>
             <Item size={width} />
