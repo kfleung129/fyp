@@ -39,6 +39,7 @@ export default function Home() {
 
   async function getStockNews(stockCode) {
     setLoading(true);
+    setNewspaper([]);
     let res = await fetch(`/api/retrieve?q=${stockCode}&num=10`);
     let newsData = await res.json();
     console.log(newsData)
