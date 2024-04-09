@@ -3,6 +3,7 @@
     flex-direction: column;
     align-items: center;
     gap: 1.2em;
+    height: 100vh;
     margin-left: -6em;
 }
 
@@ -10,27 +11,21 @@
     width: 90vw;
     height: 88vh;
     margin-top: 1.5em;
-    background: #1d2029;
-    padding: 3em 4em 2em 4em;
     border-radius: 24px;
-    overflow-y: auto;
 }
 
-.main::-webkit-scrollbar {
-    display: none;
+.main .header {
+    display: flex;
+    gap: 1em;
+    align-items: center;
+    margin-top: 1em;
 }
 
 .main .header h1 {
     font-size: 40px;
     font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: rgb(155, 92, 228);
+    color: rgb(255, 255, 255);
     transition: .2s;
-}
-
-.main .header {
-    display: flex;
-    gap: 1.5em;
-    align-items: center;
 }
 
 .main .header .reloadButton {
@@ -45,10 +40,17 @@
 }
 
 .newsList {
-    margin-top: 2em;
     display: flex;
     flex-direction: column;
     align-items: center;
+    max-height: 80vh;
+    overflow-y: auto;
+    border-radius: 36px;
+    margin-top: 1em;
+}
+
+.newsList::-webkit-scrollbar {
+    display: none;
 }
 
 .newsItem {
@@ -61,13 +63,8 @@
     border-bottom: 2px solid rgb(48, 48, 48);
 }
 
-.newsItem:first-child {
-    border-radius: 24px 24px 0px 0px;
-}
-
 .newsItem:last-child {
     border: none;
-    border-radius:  0px 0px 24px 24px;
 }
 
 .newsItem .title {
@@ -76,12 +73,6 @@
     overflow: hidden; 
     white-space: nowrap;
     text-overflow: ellipsis;
-}
-
-.newsItem .date {
-    font-size: 10px;
-    color: rgb(146, 149, 165);
-    margin-top: 2em;
 }
 
 .newsItem:hover {
@@ -126,4 +117,21 @@
 .description {
     margin-top: 1.3em;
     color: rgb(146, 149, 165);
+}
+
+.date {
+    font-size: 11px;
+    color: rgb(146, 149, 165);
+    margin-top: 5em;
+}
+
+.rangeSlider {
+    display: flex;
+    flex-direction: column;
+    width: 10em;
+    gap: .4em;
+}
+
+.rangeSlider input {
+    width: 100%;
 }

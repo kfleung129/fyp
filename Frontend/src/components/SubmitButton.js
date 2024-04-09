@@ -6,6 +6,12 @@ export default function SubmitButton(props) {
   const { text, handler, stockCode, lock } = props;
 
   return (
-    <button disabled={lock} className={styles.submitButton} onClick={() => handler(stockCode)}>{text}</button>
+    <button 
+      disabled={lock} 
+      className={styles.submitButton} 
+      onClick={async () => await handler(stockCode)}
+    >
+      {text}
+    </button>
   )
 }

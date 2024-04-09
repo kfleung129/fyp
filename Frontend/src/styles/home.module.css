@@ -1,7 +1,8 @@
 .main {
   width: 100vw;
   height: 100vh;
-  background: linear-gradient(0deg, #433661, #5b2d91, #473752, #271e30);
+  background-color: #4d4855;
+  background-image: linear-gradient(45deg, #222222 0%, #202020 25%,#141414 50%,#1b1b1b 75%);
   padding: 5em 4em;
 }
 

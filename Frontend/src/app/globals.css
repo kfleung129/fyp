@@ -121,7 +121,7 @@ main {
 
 .content {
   position: absolute;
-  background: #2c2e3a;
+  background: #1d2029;
   width: 100vw;
-  left: 5em;
+  margin-left: 10em;
 }

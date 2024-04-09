@@ -17,25 +17,23 @@ export async function GET(request) {
     const res = await fetch('http://localhost:3000/api/news' + '?' + new URLSearchParams(searchParams), { cache: 'no-cache' });
     let text = await res.text();
     let root = parse(text);
-    let searchResultList = root.querySelectorAll('.\\\\\\\"Gx5Zad');
+    let searchResultList = root.querySelectorAll('.SoaBEf');
     let newsList = [];
     
     for(let i = 0; i < searchResultList.length; i++) {
-      let title = searchResultList[i].querySelector('.\\\\\\\"BNeawe');
-      let description = searchResultList[i].querySelector('.\\\\\\\"BNeawe.s3v9rd.AP7Wnd');
-      let linkObject = searchResultList[i].getElementsByTagName('a')[0];
-      let href = linkObject._attrs['href'];
-      let index = href.indexOf('url=');
-      
-      if(index > 0) {
-        let url = href.substring(index + 4).toString().split('&')[0];
-        let newsObj = {
-          title: title ? title.text : null,
-          url: url,
-          description: description
-        }
-        newsList.push(newsObj);
+      let title = searchResultList[i].querySelector('.n0jPhd.ynAwRc.MBeuO.nDgy9d');
+      let description = searchResultList[i].querySelector('.GI74Re.nDgy9d');
+      let linkObject = searchResultList[i].querySelector('.WlydOe');
+      let date = searchResultList[i].querySelector('.OSrXXb.rbYSKb.LfVVr');
+      let url = linkObject._attrs['href'];
+
+      let newsObj = {
+        title: title ? title.text : null,
+        description: description ? description.text : null,
+        date: date ? date.text : null,
+        url: url,
       }
+      newsList.push(newsObj);
     }
-	  return NextResponse.json(newsList)
+	  return NextResponse.json(newsList);
 }

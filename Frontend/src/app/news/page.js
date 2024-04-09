@@ -3,19 +3,16 @@ import React, { useState, useEffect } from 'react';
 import NewsList from '@/components/NewsList';
 import StockSelect from '@/components/StockSelect';
 import SubmitButton from '@/components/SubmitButton';
-import { preprocessedText } from '@/util/util';
+import { getSentimentResult, fetchStockNews, fetchStockOptions } from '@/util/util';
 import { IoReloadCircle } from "react-icons/io5";
-import { pipeline, env } from "@xenova/transformers";
 
 import styles from '@/styles/news.module.css';
-
-// Skip local model check
-env.allowLocalModels = false;
 
 export default function Home() {
   const [newspaper, setNewspaper] = useState([]);
   const [stockCode, setStockCode] = useState('AAPL');
   const [stockOptions, setStockOptions] = useState(null);
+  const [numOfNews, setNumOfNews] = useState(10);
   const [isLoading, setLoading] = useState(true);
   const [isSentimentLoading, setSentimentLoading] = useState(false);
 
@@ -26,8 +23,7 @@ export default function Home() {
   }, []);
 
   async function loadStockOptions() {
-    const res = await fetch('/api/stocks');
-    let stockList = await res.json();
+    let stockList = await fetchStockOptions();
     // sort by labels
     stockList = stockList.sort((a, b) => a.value.localeCompare(b.value));
     const stockOptions = stockList.map(stock => (
@@ -48,41 +44,26 @@ export default function Home() {
     setLoading(true);
     setSentimentLoading(true);
     setNewspaper([]);
-    let res = await fetch(`/api/retrieve?q=${stockCode}&num=10`);
-    let newsData = await res.json();
+    let today = new Date();
+    let newsData = await fetchStockNews(stockCode, today, today, numOfNews);
     setNewspaper(newsData);
     setSentimentLoading(false);
     setLoading(false);
   }
 
   async function getSentimentScore() {
-    
     // Sentiment analysis
     setSentimentLoading(true);
     let newsData = newspaper;
-    let MIN_WORDS = 30;
-    let MAX_WORDS = 2000;
-    let sentimentPipe = await pipeline('sentiment-analysis', 'Xenova/distilroberta-finetuned-financial-news-sentiment-analysis');
 
     for(let i = 0; i < newsData.length; i++) {
       let text = newsData[i].text;
-      text = preprocessedText(text);
-      let wordCount = text.split(' ').length;
-      if(wordCount > MAX_WORDS || MIN_WORDS > wordCount) {
-        console.log(wordCount);
-        console.log(`${newsData[i].title} Skipped`)
-        continue;
-      }
-      try {
-        let sentimentResult = await sentimentPipe(text);
-        newsData[i].label = sentimentResult[0].label;
-        newsData[i].score = sentimentResult[0].score;
-
-      } catch(error) {
-        console.error(error);
-      }
+      let sentimentResult = await getSentimentResult(text);
+      if (!sentimentResult || !sentimentResult[0]) continue;
+      newsData[i].label = sentimentResult[0].label;
+      newsData[i].score = sentimentResult[0].score;
     }
-    console.log('[Done]')
+    console.log('[Done]');
     setSentimentLoading(false);
     setNewspaper(newsData);
   }
@@ -96,10 +77,14 @@ export default function Home() {
             <IoReloadCircle size={35} />
           </div>
         </div>
-        <NewsList newsData={newspaper} isLoading={isLoading} />
+        <NewsList newsData={newspaper} isLoading={isLoading} isSentimentLoading={isSentimentLoading} />
       </div>
       <div className={styles.input}>
         <StockSelect isLoading={isSentimentLoading} stockOptions={stockOptions} stockCode={stockCode} selectStock={selectStock} />
+        <div className={styles.rangeSlider}>
+          <span>Number of news: {numOfNews}</span>
+          <input type="range" min="1" max="20" value={numOfNews} onChange={(e) => setNumOfNews(e.target.value)}></input>
+        </div>
         <SubmitButton text='Get sentiment' handler={async () => await getSentimentScore()} stockCode={stockCode} lock={isSentimentLoading} />
       </div>
     </div>

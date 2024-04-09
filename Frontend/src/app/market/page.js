@@ -5,24 +5,27 @@ import StockSelect from '@/components/StockSelect';
 import SubmitButton from '@/components/SubmitButton';
 import GraphDisplay from '@/components/GraphDisplay';
 import StockDatePicker from '@/components/StockDatePicker';
-import { transform, inverse_transform } from '@/util/util';
+import RecommendationPopup from '@/components/RecommendationPopup';
+import { transform, inverseTransform, fetchStockOptions, fetchStockNews, fetchHistoricalData, getAggregatedSentimentScore } from '@/util/util';
 
 import styles from '@/styles/market.module.css';
 
 export default function Market(props) {
   const [stockCode, setStockCode] = useState('AAPL');
-  const [stockOptions, setStockOptions] = useState([]);
+  const [stockOptions, setStockOptions] = useState(null);
   const [startDate, setStartDate] = useState(new Date('2024-01-02')); // By default start date is one month before the end date
   const [endDate, setEndDate] = useState(new Date());
   const [displayContent, setDisplayContent] = useState(null);
+  const [recommendationObject, setRecommendationObject] = useState(null);
   const [buttonLock, setButtonLock] = useState(false);
   const [stockAvailableDates, setStockAvailableDates] = useState(null);
   const [isLoading, setLoading] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
     // inititate default stock code recommendation
     loadStockOptions();
-    getStockRecommendation(stockCode);
+    getStockPrediction(stockCode, startDate, endDate);
 
   }, []);
   
@@ -34,17 +37,11 @@ export default function Market(props) {
     setButtonLock(false);
   }
   
-  async function getStockRecommendation(stockCode) {
-    lock();
+  async function getStockPrediction(stockCode) {
     setLoading(true);
-    // let newsList = await getStockNews(stockCode);
-    // for(let i = 0; i < newsList.length; i++) {
-    //   let sentimentPipeline = await pipeline('sentiment-analysis', 'Xenova/distilroberta-finetuned-financial-news-sentiment-analysis');
-    //   let sentiment = await sentimentPipeline(newsList[i]);
-    //   console.log(sentiment)
-    // }
-    let historicalData = await getHistoricalData(stockCode);
-    let predictedStockPrice = await getLSTMPrediction(historicalData);
+
+    let historicalData = await getHistoricalData(stockCode, startDate, endDate);
+    let predictedStockPrice = await getLSTMPrediction(historicalData, startDate);
     const startDateStr = `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${startDate.getDate()}`;
     const startItem = historicalData.find(item => item.date == startDateStr);
     // non-trading day is selected
@@ -56,12 +53,13 @@ export default function Market(props) {
     for(let i = startIndex; i < historicalData.length; i++) {
         historicalData[i]['predict'] = predictedStockPrice[i - startIndex];
     }
+    const displayContent = { stockCode: stockCode, displayList: historicalData.slice(startIndex, historicalData.length) };
+    
     setLoading(false);
-    setDisplayContent({ stockCode: stockCode, displayList: historicalData.slice(startIndex, historicalData.length) });
-    unlock();
+    setDisplayContent(displayContent);
   }
 
-  async function getLSTMPrediction(historicalData) {
+  async function getLSTMPrediction(historicalData, startDate) {
     // Set prediction status is "Loading..."
     const model = await tf.loadLayersModel(`http://localhost:3000/model/${stockCode}/model.json`)
     const dayBefore = 60;
@@ -91,16 +89,13 @@ export default function Market(props) {
     result = model.predict(X_test).dataSync();
     result = [...result];
 
-    let predictedStockPrice = inverse_transform(result, min, max);
+    let predictedStockPrice = inverseTransform(result, min, max);
     return predictedStockPrice;
   }
 
-  async function getHistoricalData(stockCode) {
+  async function getHistoricalData(stockCode, startDate, endDate) {
     lock();
-    let period1 = parseInt((startDate.getTime() - 7948800000) / 1000);
-    let period2 = parseInt(endDate.getTime() / 1000);
-    let res = await fetch(`/api/historical?q=${stockCode}&period1=${period1}&period2=${period2}`);
-    let historicalData = await res.json();
+    let historicalData = await fetchHistoricalData(stockCode, startDate, endDate);
     let availableDates = historicalData.map(item => item.date);
     setStockAvailableDates(availableDates);
     unlock();
@@ -109,13 +104,12 @@ export default function Market(props) {
 
   async function selectStock (stockCode) {
     // Update different stock's available dates
-    await getHistoricalData(stockCode);
+    getStockPrediction(stockCode);
     setStockCode(stockCode);
   }
 
   async function loadStockOptions() {
-    const res = await fetch('/api/stocks');
-    let stockList = await res.json();
+    let stockList = await fetchStockOptions();
     // sort by labels
     stockList = stockList.sort((a, b) => a.value.localeCompare(b.value));
     const stockOptions = stockList.map(stock => (
@@ -126,15 +120,57 @@ export default function Market(props) {
     setStockOptions(stockOptions);
   }
 
+  async function getFutureDayPrediction(stockCode) {
+    // Get current day's previous 60 day historical data
+    let today = new Date();
+    let historicalData = await getHistoricalData(stockCode, today, today);
+    let firstDate = historicalData[historicalData.length - 1].date;
+    firstDate = new Date(firstDate);
+    // Get prediction
+    let predictedStockPrice = await getLSTMPrediction(historicalData, firstDate);
+    return predictedStockPrice[0];
+  }
+
+  async function getTodayRecommendation(stockCode) {
+    lock();
+    const totalNews = 20;
+    let today = new Date();
+    let yesterday = new Date(new Date().setDate(today.getDate() - 1));
+    let todayNewsData = await fetchStockNews(stockCode, today, today, totalNews);
+    let yesterdayNewsData = await fetchStockNews(stockCode, yesterday, yesterday, totalNews);
+    let predictedStockPrice = await getFutureDayPrediction(stockCode);
+    console.log(todayNewsData);
+    console.log(yesterdayNewsData);
+    let todayAggregatedSentimentScore = await getAggregatedSentimentScore(todayNewsData);
+    let yesterdayAggregatedSentimentScore = await getAggregatedSentimentScore(yesterdayNewsData);
+    console.log(todayAggregatedSentimentScore);
+    console.log(yesterdayAggregatedSentimentScore);
+    let scoreDiff = todayAggregatedSentimentScore - yesterdayAggregatedSentimentScore;
+    let movement = scoreDiff > 0 ? 'up' : 'drop';
+    
+    let recommendationObj = {
+      scoreDiff: scoreDiff,
+      todayScore: todayAggregatedSentimentScore,
+      yesterdayScore: yesterdayAggregatedSentimentScore,
+      movement: movement,
+      predictedStockPrice: predictedStockPrice
+    }
+    setRecommendationObject(recommendationObj);
+    setShowPopup(true);
+    unlock();
+  }
+  
   return (
     <div className={styles.main}>
+        <RecommendationPopup showPopup={showPopup} setShowPopup={setShowPopup} recommendationObject={recommendationObject} />
         <GraphDisplay displayContent={displayContent} stockCode={stockCode} isLoading={isLoading} />
         <div className='input'>
           <StockSelect stockOptions={stockOptions} stockCode={stockCode} selectStock={selectStock} />
           <StockDatePicker date={startDate} setDate={setStartDate} includeDates={stockAvailableDates} maxDate={null} />
           <span>-</span>
           <StockDatePicker date={endDate} setDate={setEndDate} includeDates={stockAvailableDates} maxDate={new Date()} />
-          <SubmitButton text="Get Recommedation" handler={getStockRecommendation} stockCode={stockCode} lock={buttonLock} />
+          <SubmitButton text="Get Prediction" handler={getStockPrediction} stockCode={stockCode} lock={buttonLock} />
+          <SubmitButton text="Get Recommendation" handler={getTodayRecommendation} stockCode={stockCode} lock={buttonLock} />
         </div>
     </div>
   )

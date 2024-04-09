@@ -68,7 +68,7 @@ export default function GraphDisplay(props) {
               <YAxis tickMargin={TICK_MARGIN} domain={Y_DOMAIN} tickSize={TICK_SIZE} />
               <Tooltip content={<CustomTooltip />}  />
               <Line isAnimationActive={SHOW_ANIMATION} type='monotone' dataKey='adjclose' stroke={'#953ef7'} dot={SHOW_DOT} />
-              <Line isAnimationActive={SHOW_ANIMATION} type='monotone' dataKey='predict' stroke={'#39e75f'} dot={SHOW_DOT} />
+              <Line isAnimationActive={SHOW_ANIMATION} type='monotone' dataKey='predict' stroke={'rgb(0,230,0)'} dot={SHOW_DOT} />
           </LineChart>
         }
     </div>
