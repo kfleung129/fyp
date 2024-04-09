@@ -5,8 +5,12 @@ import styles from '../styles/navigation.module.css';
 import MenuItem from './MenuItem';
 
 export default function NavigationBar(props) {
-  const menuPressed = props.menuPressed
-  const onPressMenu = props.onPressMenu;
+  const [menuPressed, setMenuPressed] = useState(false);
+
+  function onPressMenu () {
+    setMenuPressed(!menuPressed);
+  }
+
   const menuWidth = 30;
 
   return (
@@ -21,13 +25,13 @@ export default function NavigationBar(props) {
           onClick={onPressMenu}
           priority
         />
-        <h2>Gademic</h2>
+        <h2>StockRem</h2>
       </header>
       <ul>
-        <MenuItem name='Home' width={menuWidth} />
-        <MenuItem name='Market' width={menuWidth} />
-        <MenuItem name='Perferences' width={menuWidth} />
-        <MenuItem name='Contact' width={menuWidth} />
+        <MenuItem name='Home' href='/' width={menuWidth} />
+        <MenuItem name='Market' href='/market' width={menuWidth} />
+        <MenuItem name='News' href='/news' width={menuWidth} />
+        <MenuItem name='Contact' href='/contact' width={menuWidth} />
       </ul>
     </nav>
   )

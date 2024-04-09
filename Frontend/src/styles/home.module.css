@@ -1,0 +1,82 @@
+.main {
+  width: 100vw;
+  height: 100vh;
+  background-color: #4d4855;
+  background-image: linear-gradient(45deg, #222222 0%, #202020 25%,#141414 50%,#1b1b1b 75%);
+  padding: 5em 4em;
+}
+
+.main * {
+  animation: fade 1.5s linear;
+}
+
+.main h1 {
+  font-size: 70px;
+  font-weight: 600;
+  background: linear-gradient(45deg, #6c62ff, #ff0000);
+  color: transparent;
+  background-clip: text;
+  transition: filter .4s;
+}
+
+.main h1:hover {
+  filter: brightness(130%);
+  transition: .4s;
+}
+
+.main .intro {
+  margin-top: 1em;
+}
+
+.main .intro p {
+  font-size: 20px;
+  margin-top: 1.5em;
+  width: 50vw;
+  letter-spacing: .1em;
+  transition: .1s ease-in-out;
+}
+
+.main .intro p:hover {
+  color:rgb(166, 107, 233);
+  transition: .1s ease-in-out;
+}
+
+.main .content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tryButton {
+  color: #292929;
+  background-color: #2ECC71;
+  width: 12em;
+  height: 2.5em;
+  font-size: 24px;
+  font-weight: 600;
+  border: 0px;
+  border-radius: 5px;
+  margin-top: 6em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tryButton:hover {
+  cursor: pointer;
+  filter: brightness(125%);
+  color: #1f1f1f;
+  transition: .1s ease-in;
+}
+
+@keyframes fade {
+	0% {
+		opacity: 0%;
+	}
+	50% {
+		opacity: 50%;
+	}
+	100% {
+		opacity: 100%;
+	}
+}

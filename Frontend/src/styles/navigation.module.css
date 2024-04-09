@@ -1,13 +1,17 @@
 .menu {
   display: flex;
+  overflow: hidden !important;
+  position: fixed !important;
+  top: 0 !important;
+  height: 100% !important;
   flex-direction: column;
   background-color: #1d2029;
-  height: 100vh;
   gap: 2em;
   align-items: flex-start;
   position: absolute;
-  border-right: 2px solid #30333d;
   z-index: 1000;
+  font-weight: 500;
+  border-right: 2px solid #232631;
 }
 
 .menu > header {
@@ -30,12 +34,14 @@
   align-items: center;
   gap: 2em;
   overflow: hidden;
-  padding: 1em 1.5em;
+  padding: 1em .9em;
 }
 
-.menuitem:hover {
-  background-color: #b9c2cc;
-  color: black;
+.menuitem .logoWrapper {
+  padding: .4em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .hid {
@@ -53,6 +59,43 @@
 .opened > ul {
   width: 100%;
 }
+
+.selected {
+  color: black;
+}
+
+.logoWrapper {
+  border-radius: 12px;
+}
+
+.hid .logoWrapper:hover {
+  background-color: #b9c2cc;
+  color: black;
+}
+
+.opened .menuitem:hover {
+  background-color: #b9c2cc;
+  color: black;
+}
+
+.hid .selected .logoWrapper {
+  background-color: #a380e4;
+  color: black;
+  transition: 0.2s ease-in;
+  transition: color 0s;
+}
+
+.opened .selected {
+  background-color: #a380e4;
+  color: black;
+  transition: 0.2s ease-in;
+  transition: color 0s;
+}
+
+.opened .selected:hover {
+  background-color: #a380e4;
+}
+
 
 @keyframes rotating {
   from{

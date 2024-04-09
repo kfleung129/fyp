@@ -1,22 +1,35 @@
 'use client';
 import React, { useState } from 'react';
-import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation'
 import styles from '../styles/navigation.module.css';
+import { FaHome, FaStar } from "react-icons/fa";
+import { AiOutlineStock } from "react-icons/ai";
+import { GrContact } from "react-icons/gr";
+import { IoNewspaperSharp } from "react-icons/io5";
+
+const iconsMap = {
+  'Home': FaHome,
+  'Market': AiOutlineStock,
+  'Perferences': FaStar,
+  'Contact': GrContact,
+  'News': IoNewspaperSharp,
+}
 
 export default function MenuItem(props) {
-  const name = props.name;
-  const width = props.width;
+  const { name, width, href } = props;
+  const Item = iconsMap[name];
+  const pathname = usePathname();
+  const selected = pathname === href;
 
   return (
-    <li className={styles.menuitem}>
-        <Image
-          src={`/${name.toLowerCase()}.svg`}
-          alt="Logo"
-          width={width}
-          height={width}
-          priority
-        />
-        <span>{name}</span>
-    </li>
+    <Link href={href}>
+      <li className={`${styles.menuitem} ${selected ? styles.selected : null}`}>
+          <div className={styles.logoWrapper}>
+            <Item size={width} />
+          </div>
+          <span>{name}</span>
+      </li>
+    </Link>
   )
 }

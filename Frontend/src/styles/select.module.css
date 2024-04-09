@@ -1,9 +1,9 @@
 .stockSelect {
-  width: 10em;
+  width: 12em;
   height: 2.5em;
   font-size: 1.2em;
   border-radius: 14px;
-  padding: 0px 15px;
+  padding: 0px 10px;
   outline: none;
   background-color: #242732;
   transition: 0.2s;
