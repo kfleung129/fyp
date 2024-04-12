@@ -1,3 +1,4 @@
+import * as tf from '@tensorflow/tfjs';
 import { lemmatizer } from "lemmatizer";
 import { pipeline, env } from "@xenova/transformers";
 
@@ -39,6 +40,40 @@ export function preprocessedText(text) {
   let preprocessedWords = lemmatizedWords.map(word => (word in stopwords ? '' : word));
   let resText = preprocessedWords.join(' ');
   return resText;
+}
+
+export async function getLSTMPrediction(stockCode, historicalData, startDate) {
+  // Set prediction status is "Loading..."
+  const model = await tf.loadLayersModel(`/model/${stockCode}/model.json`)
+  const dayBefore = 60;
+  const startDateStr = `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${startDate.getDate()}`;
+  let openPriceList = historicalData.map(item => item.open);
+  let normalizedPriceList = transform(openPriceList);
+  let min = Math.min(...openPriceList);
+  let max = Math.max(...openPriceList);
+  const listLength = openPriceList.length;
+  const startItem = historicalData.find(item => item.date == startDateStr);
+  // non-trading day is selected
+  if (!startItem) {
+    console.error('Date unavailable')
+    return;
+  }
+  const startIndex = historicalData.indexOf(startItem);
+  const dayDiff = listLength - startIndex
+  let X_test = []
+  let result = '';
+
+  for(let i = 0; i < dayDiff; i++) {
+    let row = normalizedPriceList.slice(startIndex - dayBefore + i, startIndex + i);
+    X_test.push(row);
+  }
+  X_test = tf.tensor(X_test);
+  X_test = tf.reshape(X_test, [dayDiff, dayBefore, 1]);
+  result = model.predict(X_test).dataSync();
+  result = [...result];
+
+  let predictedStockPrice = inverseTransform(result, min, max);
+  return predictedStockPrice;
 }
 
 export async function getSentimentResult(newsText, pipe = null) {

@@ -1,12 +1,11 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import * as tf from '@tensorflow/tfjs';
 import StockSelect from '@/components/StockSelect';
 import SubmitButton from '@/components/SubmitButton';
 import GraphDisplay from '@/components/GraphDisplay';
 import StockDatePicker from '@/components/StockDatePicker';
 import RecommendationPopup from '@/components/RecommendationPopup';
-import { transform, inverseTransform, fetchStockOptions, fetchStockNews, fetchHistoricalData, getAggregatedSentimentScore } from '@/util/util';
+import { getLSTMPrediction, fetchStockOptions, fetchStockNews, fetchHistoricalData, getAggregatedSentimentScore } from '@/util/util';
 
 import styles from '@/styles/market.module.css';
 
@@ -41,7 +40,7 @@ export default function Market(props) {
     setLoading(true);
 
     let historicalData = await getHistoricalData(stockCode, startDate, endDate);
-    let predictedStockPrice = await getLSTMPrediction(historicalData, startDate);
+    let predictedStockPrice = await getLSTMPrediction(stockCode, historicalData, startDate);
     const startDateStr = `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${startDate.getDate()}`;
     const startItem = historicalData.find(item => item.date == startDateStr);
     // non-trading day is selected
@@ -57,40 +56,6 @@ export default function Market(props) {
     
     setLoading(false);
     setDisplayContent(displayContent);
-  }
-
-  async function getLSTMPrediction(historicalData, startDate) {
-    // Set prediction status is "Loading..."
-    const model = await tf.loadLayersModel(`http://localhost:3000/model/${stockCode}/model.json`)
-    const dayBefore = 60;
-    const startDateStr = `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${startDate.getDate()}`;
-    let openPriceList = historicalData.map(item => item.open);
-    let normalizedPriceList = transform(openPriceList);
-    let min = Math.min(...openPriceList);
-    let max = Math.max(...openPriceList);
-    const listLength = openPriceList.length;
-    const startItem = historicalData.find(item => item.date == startDateStr);
-    // non-trading day is selected
-    if (!startItem) {
-      console.error('Date unavailable')
-      return;
-    }
-    const startIndex = historicalData.indexOf(startItem);
-    const dayDiff = listLength - startIndex
-    let X_test = []
-    let result = '';
-
-    for(let i = 0; i < dayDiff; i++) {
-      let row = normalizedPriceList.slice(startIndex - dayBefore + i, startIndex + i);
-      X_test.push(row);
-    }
-    X_test = tf.tensor(X_test);
-    X_test = tf.reshape(X_test, [dayDiff, dayBefore, 1]);
-    result = model.predict(X_test).dataSync();
-    result = [...result];
-
-    let predictedStockPrice = inverseTransform(result, min, max);
-    return predictedStockPrice;
   }
 
   async function getHistoricalData(stockCode, startDate, endDate) {
@@ -127,7 +92,7 @@ export default function Market(props) {
     let firstDate = historicalData[historicalData.length - 1].date;
     firstDate = new Date(firstDate);
     // Get prediction
-    let predictedStockPrice = await getLSTMPrediction(historicalData, firstDate);
+    let predictedStockPrice = await getLSTMPrediction(stockCode, historicalData, firstDate);
     return predictedStockPrice[0];
   }
 
